@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REBEN Portal</title>
+<meta name="theme-color" content="#da1f26">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="REBEN">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<style>
+:root{--red:#da1f26;--red2:#a8141a;--gray:#4c4b4d;--mut:#8a898b;--bg:#ffffff;--soft:#f5f5f6;--line:rgba(76,75,77,.14)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:100dvh;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;color-scheme:light}
+body{height:100%;min-height:0;overflow:hidden;background:radial-gradient(700px 420px at 10% -8%,rgba(218,31,38,.13),transparent 60%),radial-gradient(700px 420px at 100% 100%,rgba(76,75,77,.12),transparent 60%),#fff;color:var(--gray);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(76,75,77,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(76,75,77,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(circle at 50% 15%,#000,transparent 75%);mask-image:radial-gradient(circle at 50% 15%,#000,transparent 75%);pointer-events:none;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(70px);opacity:.28;pointer-events:none;z-index:0;animation:float 14s ease-in-out infinite}
+.o1{width:240px;height:240px;background:var(--red);top:-70px;left:-80px}
+.o2{width:220px;height:220px;background:var(--gray);bottom:-60px;right:-70px;animation-delay:-6s}
+@keyframes float{50%{transform:translate(40px,50px) scale(1.15)}}
+
+.wrap{
+  position:relative;z-index:1;
+  width:100%;max-width:560px;
+  height:100%;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) clamp(10px,3.5vw,18px) calc(env(safe-area-inset-bottom,0px) + 10px);
+  display:flex;flex-direction:column;
+  gap:clamp(8px,1.4dvh,12px);
+}
+#home{
+  display:flex;flex-direction:column;
+  height:100%;min-height:0;
+  gap:clamp(8px,1.4dvh,12px);
+}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:20px;
+  position:relative;overflow:hidden;
+  box-shadow:0 10px 30px rgba(76,75,77,.10);
+}
+.head::after,.note::after{
+  content:"";position:absolute;left:0;top:0;height:3px;width:100%;
+  background:linear-gradient(90deg,var(--gray),var(--red),var(--gray));
+  background-size:200% 100%;animation:slide 4s linear infinite;
+}
+@keyframes slide{to{background-position:-200% 0}}
+
+/* ===== header ===== */
+.head{
+  padding:clamp(12px,2.4dvh,20px) clamp(14px,3.5vw,18px);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(8px,2.5vw,14px);
+  flex:none;
+}
+.logo{display:flex;align-items:center;min-width:0;flex:none}
+.mark{
+  width:clamp(110px,33vw,155px);
+  height:clamp(42px,12vw,58px);
+  border-radius:12px;
+  background:transparent;
+  display:grid;place-items:center;
+  position:relative;overflow:hidden;
+  flex:none;
+  box-shadow:none;
+}
+.mark img{
+  width:100%;height:100%;
+  object-fit:contain;
+  display:block;
+  padding:3px;
+  position:relative;z-index:1;
+}
+.clock{text-align:right;min-width:0;flex:1}
+.greet{
+  font-size:clamp(10px,2.8vw,12px);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--red);
+  font-weight:700;
+  margin-bottom:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+  min-height:1em;
+}
+.time{font-size:clamp(19px,5.8vw,27px);font-weight:700;font-variant-numeric:tabular-nums;color:var(--gray);white-space:nowrap;line-height:1.05}
+.time small{font-size:clamp(10px,2.8vw,13px);color:var(--red);margin-left:3px}
+.date{font-size:clamp(9.5px,2.7vw,11.5px);color:var(--mut);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.sec{height:2px;border-radius:2px;background:#ececec;margin-top:8px;overflow:hidden}
+.sec i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gray),var(--red));transition:width .3s linear}
+
+/* ===== notifications ===== */
+.note{
+  padding:clamp(12px,2.2dvh,18px) clamp(14px,3.5vw,18px);
+  flex:none;
+}
+.nh{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(8px,1.4dvh,12px)}
+.nt{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.08em;font-size:clamp(11px,3vw,13px);text-transform:uppercase;color:var(--gray)}
+.bell{width:30px;height:30px;border-radius:10px;background:rgba(218,31,38,.1);display:grid;place-items:center;position:relative;flex:none}
+.bell svg{width:16px;height:16px;animation:ring 3s infinite;transform-origin:50% 0}
+.bell i{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font:700 9px/16px system-ui;text-align:center;font-style:normal;box-shadow:0 0 0 2px #fff}
+@keyframes ring{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(14deg)}90%{transform:rotate(-12deg)}95%{transform:rotate(8deg)}}
+.dots{display:flex;gap:5px}
+.dots b{width:6px;height:6px;border-radius:50%;background:#d6d6d7;transition:.3s;cursor:pointer}
+.dots b.on{background:var(--red);width:18px;border-radius:3px}
+.slides{position:relative;min-height:clamp(48px,9dvh,80px)}
+.slide{position:absolute;inset:0;display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(8px);transition:.5s;pointer-events:none}
+.slide.on{opacity:1;transform:none;pointer-events:auto;position:relative}
+.tag{flex:none;padding:3px 8px;border-radius:7px;font-size:clamp(8.5px,2.4vw,10px);font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(218,31,38,.1);color:var(--red);border:1px solid rgba(218,31,38,.3)}
+.tag.i{background:rgba(76,75,77,.08);color:var(--gray);border-color:rgba(76,75,77,.25)}
+.slide p{font-size:clamp(12.5px,3.7vw,15px);line-height:1.45;color:var(--gray);font-weight:500;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.slide em{display:block;font-style:normal;font-size:clamp(10px,2.8vw,11.5px);color:var(--mut);margin-top:4px}
+
+/* ===== install banner ===== */
+.inst{display:none;align-items:center;gap:10px;padding:clamp(8px,1.6dvh,12px) clamp(12px,3.5vw,14px);border-radius:14px;background:var(--gray);color:#fff;font-size:clamp(11px,3.2vw,13px);line-height:1.35;flex:none}
+.inst.on{display:flex}
+.inst b{flex:1;font-weight:600}
+.inst button{border:0;border-radius:9px;padding:8px 12px;font:700 clamp(11px,3.2vw,13px) system-ui;background:var(--red);color:#fff;cursor:pointer}
+.inst .x{background:transparent;font-size:20px;padding:2px 6px}
+
+/* ===== hint ===== */
+.hint{text-align:center;font-size:clamp(10.5px,3vw,12.5px);color:var(--mut);padding:2px 0;flex:none}
+
+/* ===== weather chip ===== */
+.weather{
+  display:none;
+  align-items:center;justify-content:center;
+  gap:6px;
+  padding:9px 14px;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  box-shadow:0 4px 14px rgba(76,75,77,.06);
+  font-size:clamp(11.5px,3.2vw,13.5px);
+  font-weight:700;
+  color:var(--gray);
+  flex:none;
+  white-space:nowrap;
+  overflow:hidden;
+  max-width:100%;
+  animation:pop .5s backwards;
+}
+.weather.on{display:flex}
+.weather .wname{color:var(--gray);font-weight:700;overflow:hidden;text-overflow:ellipsis;max-width:32%}
+.weather .wpin{font-size:clamp(13px,3.8vw,16px);line-height:1;flex:none}
+.weather .wcity{color:var(--gray);font-weight:700;overflow:hidden;text-overflow:ellipsis;max-width:38%}
+.weather .wtemp{color:var(--red);font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+.weather .wicon{font-size:clamp(14px,4vw,17px);line-height:1;flex:none}
+
+/* ===== main buttons ===== */
+.tabs{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(10px,1.6dvh,14px);
+  flex:1;min-height:0;
+}
+.tab{
+  cursor:pointer;border:1px solid var(--line);
+  border-radius:22px;
+  color:#fff;font:800 clamp(15px,4.4vw,20px) system-ui;
+  letter-spacing:.14em;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(10px,3vw,16px);
+  transition:.25s;
+  box-shadow:0 10px 26px rgba(76,75,77,.18);
+  padding:0 clamp(16px,5vw,26px);
+  position:relative;overflow:hidden;
+  flex:1;min-height:70px;
+  -webkit-tap-highlight-color:transparent;
+}
+.tab[data-k=station]{background:linear-gradient(145deg,#f0474d,var(--red) 55%,var(--red2));box-shadow:0 10px 26px rgba(218,31,38,.35)}
+.tab[data-k=truck]{background:linear-gradient(145deg,#6b6a6d,var(--gray) 55%,#2f2e30)}
+.tab svg{
+  width:clamp(30px,8.5vw,44px);height:clamp(30px,8.5vw,44px);
+  stroke:#fff;fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;
+  flex:none;
+}
+.tab:hover,.tab:active{transform:translateY(-2px)}
+.tab:active{transform:translateY(0) scale(.99)}
+
+/* ===== list view ===== */
+.panel{display:none}
+.panel.on{
+  display:flex;flex-direction:column;gap:clamp(8px,1.6dvh,12px);
+  height:100%;min-height:0;
+  animation:in .4s;
+}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body.list #home{display:none}
+.phead{display:flex;align-items:center;gap:12px;flex:none}
+.back{width:clamp(40px,11vw,48px);height:clamp(40px,11vw,48px);border-radius:13px;border:1px solid var(--line);background:#fff;color:var(--red);font-size:clamp(22px,6.5vw,28px);line-height:1;cursor:pointer;flex:none;box-shadow:0 6px 16px rgba(76,75,77,.12);display:grid;place-items:center}
+.pt{font-size:clamp(16px,5vw,22px);font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)}
+.pt::after{content:"";display:block;width:40px;height:3px;border-radius:2px;background:var(--red);margin-top:3px}
+
+.grid{display:flex;flex-direction:column;gap:clamp(5px,1dvh,8px);flex:1;min-height:0}
+.grid a{flex:1;min-height:0;display:flex;align-items:center;gap:clamp(10px,3vw,14px);padding:0 clamp(12px,3.5vw,16px);border-radius:14px;text-decoration:none;color:var(--gray);font-weight:700;font-size:clamp(12.5px,3.9vw,16px);background:#fff;border:1px solid var(--line);box-shadow:0 4px 12px rgba(76,75,77,.07);transition:.2s;animation:pop .45s backwards;animation-delay:calc(var(--i)*35ms)}
+.grid a span{width:clamp(24px,7vw,32px);height:clamp(24px,7vw,32px);border-radius:9px;display:grid;place-items:center;font-size:clamp(11px,3vw,13px);font-weight:800;color:#fff;background:linear-gradient(145deg,#f0474d,var(--red));flex:none}
+.panel[data-p=truck] .grid a span{background:linear-gradient(145deg,#6b6a6d,var(--gray))}
+.grid a::after{content:"\203A";margin-left:auto;color:var(--red);font-size:clamp(18px,5vw,24px)}
+.grid a:hover,.grid a:active{border-color:var(--red);background:rgba(218,31,38,.05);transform:translateX(3px)}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.95)}}
+
+/* ===== name modal ===== */
+.modal{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(76,75,77,.55);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;
+  animation:fadeIn .3s;
+}
+.modal.on{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.mbox{
+  background:#fff;border-radius:22px;
+  width:100%;max-width:400px;
+  padding:clamp(22px,4dvh,32px) clamp(18px,4vw,26px);
+  box-shadow:0 24px 60px rgba(0,0,0,.28);
+  text-align:center;
+  animation:pop .4s cubic-bezier(.2,.9,.3,1.2);
+  position:relative;overflow:hidden;
+}
+.mbox::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gray),var(--red),var(--gray));
+  background-size:200% 100%;animation:slide 4s linear infinite;
+}
+.micon{
+  width:64px;height:64px;border-radius:20px;
+  background:rgba(218,31,38,.1);
+  display:grid;place-items:center;margin:0 auto 14px;
+}
+.micon svg{width:32px;height:32px;stroke:var(--red);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mbox h2{
+  font-size:clamp(17px,4.8vw,21px);font-weight:800;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--gray);margin-bottom:6px;
+}
+.mbox p{
+  font-size:clamp(12px,3.4vw,14px);color:var(--mut);
+  line-height:1.5;margin-bottom:18px;
+}
+.mbox input{
+  width:100%;border:1.5px solid var(--line);
+  border-radius:12px;padding:13px 16px;
+  font:600 clamp(14px,4vw,16px) system-ui;
+  color:var(--gray);background:var(--soft);
+  outline:none;transition:.2s;
+  text-align:center;letter-spacing:.02em;
+}
+.mbox input:focus{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px rgba(218,31,38,.12)}
+.mbox input.err{border-color:var(--red);background:rgba(218,31,38,.06);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.mbox button{
+  width:100%;margin-top:14px;
+  border:0;border-radius:12px;
+  padding:14px;font:800 clamp(14px,4vw,16px) system-ui;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:#fff;cursor:pointer;
+  background:linear-gradient(145deg,#f0474d,var(--red) 55%,var(--red2));
+  box-shadow:0 10px 24px rgba(218,31,38,.35);
+  transition:.2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.mbox button:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(218,31,38,.42)}
+.mbox button:active{transform:translateY(0) scale(.98)}
+.mnote{
+  font-size:clamp(10px,2.8vw,11.5px);color:var(--mut);
+  margin-top:12px;line-height:1.45;
+}
+
+/* ===== extreme short screens ===== */
+@media(max-height:600px){
+  .hint{display:none}
+  .date{display:none}
+  .slides{min-height:40px}
+  .slide p{-webkit-line-clamp:2;font-size:12px}
+  .tab{min-height:60px}
+  .weather{padding:7px 12px;font-size:11px}
+}
+@media(max-height:480px){
+  .head{padding:8px 12px}
+  .note{padding:8px 12px}
+  .slides{min-height:34px}
+  .slide em{display:none}
+  .sec{display:none}
+  .mark{width:clamp(100px,32vw,140px);height:clamp(38px,11vw,52px)}
+  .tab{min-height:50px;font-size:14px}
+  .tab svg{width:26px;height:26px}
+  .weather{display:none!important}
+}
+@media(max-height:400px){
+  .head,.note{padding:6px 10px}
+  .slides{min-height:30px}
+  .slide p{font-size:11.5px;-webkit-line-clamp:1}
+  .grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);grid-auto-flow:column;gap:5px}
+  .grid a{font-size:13px}
+}
+
+@media(max-width:360px){
+  .time{font-size:18px}
+  .date{font-size:9.5px}
+  .greet{font-size:8.5px;letter-spacing:.06em}
+  .mark{width:clamp(90px,30vw,120px);height:clamp(36px,11vw,48px)}
+  .weather{font-size:10.5px;padding:7px 10px;gap:5px}
+}
+
+@media(min-width:600px){.wrap{max-width:520px}}
+
+/* ripple */
+.tab,.grid a,.back{position:relative;overflow:hidden}
+.rip{position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.5);transform:scale(0);animation:rip .65s ease-out forwards}
+.grid a .rip,.back .rip{background:rgba(218,31,38,.25)}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div>
+
+<!-- ===== NAME MODAL ===== -->
+<div class="modal" id="nameModal">
+  <div class="mbox">
+    <div class="micon">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <h2>Welcome To Reben</h2>
+    <p>Please enter your name to continue</p>
+    <input type="text" id="nameInput" placeholder="Enter Your Name Here" autocomplete="name" autocapitalize="words" spellcheck="false" maxlength="40">
+    <button id="nameBtn">Continue</button>
+    <div class="mnote">Thank you for being part of Reben!</div>
+  </div>
+</div>
+
+<div class="wrap">
+<div id="home">
+  <header class="card head">
+    <div class="logo">
+      <div class="mark"><img src="logo.png" alt="REBEN"></div>
+    </div>
+    <div class="clock">
+      <div class="greet" id="greet">&nbsp;</div>
+      <div class="time" id="time">--:--:--</div>
+      <div class="date" id="date"></div>
+      <div class="sec"><i id="sec"></i></div>
+    </div>
+  </header>
+
+  <section class="card note">
+    <div class="nh">
+      <div class="nt">
+        <div class="bell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#da1f26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+          <i id="cnt">3</i>
+        </div>
+        Notifications
+      </div>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="slides" id="slides"></div>
+  </section>
+
+  <div class="inst" id="inst">
+    <b id="insttxt">Install REBEN on your phone</b>
+    <button id="instbtn">Install</button>
+    <button class="x" id="instx" aria-label="Close">&times;</button>
+  </div>
+
+  <div class="hint">Choose below to see the links: Designed By- Mozahid</div>
+
+  <!-- weather chip: Hlo Name 📍 Location 32°C ☀️ -->
+  <div class="weather" id="weather">
+    <span class="wname" id="wName"></span>
+    <span class="wpin">📍</span>
+    <span class="wcity" id="wCity">Locating…</span>
+    <span class="wtemp" id="wTemp">--°</span>
+    <span class="wicon" id="wIcon">☀️</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab" data-k="station">
+      <svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h12"/><path d="M6 8h6"/><path d="M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg>
+      STATION
+    </button>
+    <button class="tab" data-k="truck">
+      <svg viewBox="0 0 24 24"><path d="M2 6h12v10H2z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg>
+      TRUCK
+    </button>
+  </div>
+</div>
+
+<section class="panel" data-p="station">
+  <div class="phead"><button class="back" aria-label="Back">&#8249;</button><div class="pt">Station Links</div></div>
+  <div class="grid" id="g-station"></div>
+</section>
+<section class="panel" data-p="truck">
+  <div class="phead"><button class="back" aria-label="Back">&#8249;</button><div class="pt">Truck Links</div></div>
+  <div class="grid" id="g-truck"></div>
+</section>
+</div>
+<script>
+/* =========================================================
+   EDIT HERE: put your real links
+   Replace each "#YOUR_..." with the real https:// link
+   ========================================================= */
+var NOTIFICATIONS=[
+ {tag:"Important",type:"",text:"Welcome to the REBEN portal. Your notifications will appear here.",when:"Today"},
+ {tag:"Info",type:"i",text:"Daily shift readings must be submitted before 11:00 PM.",when:"Reminder"},
+ {tag:"Update",type:"i",text:"New truck dispatch links have been added.",when:"This week"}
+];
+
+var STATION=[
+  {label:"Station Stock",  url:"https://forms.gle/wGanzYmbLnAcDYSN6"},
+  {label:"Daily Station Stock",  url:"https://forms.gle/2wnGA4d7oYULkVu66"},
+  {label:"Station Maintenance",  url:"https://forms.gle/nPSkMB21Eh1ggq6f8"},
+  {label:"Trip Report and seal details",  url:"https://forms.gle/YbFLJ3jf9LAwN7ZXA"},
+  {label:"Station Inspections",  url:"https://forms.gle/XKmGf9MfXWXdZfrr8"},
+  {label:"Station Requests",  url:"https://mozahidreben.github.io/request/"},
+  {label:"Continued-Stock",  url:"https://mozahidreben.github.io/Continued-Stock/"},
+  {label:"Fire Extinguisher",  url:"https://docs.google.com/forms/d/e/1FAIpQLSf-e0rhaHXgPJB9hBQHiMB1mnA0CeI2FKAC7IJN-uaTfM5Tvg/viewform"},
+  {label:"Car scape 🚘",  url:"https://docs.google.com/forms/d/e/1FAIpQLSfEZ3XxjBAq2_nq8frUUdVbBNeiWjMXtqTcHXzYhwz7LkJmfg/viewform?usp=dialog"},
+  {label:"Leave Request", url:"https://forms.gle/QZiqceCZLBzsXhQBA"}
+];
+
+var TRUCK=[
+  {label:"Truck Maintenance",  url:"https://forms.gle/Qyb8EpMZ6Wcx6dwz8"},
+  {label:"Trip Report",  url:"https://forms.gle/YbFLJ3jf9LAwN7ZXA"},
+  {label:"Truck Inspection",  url:"https://forms.gle/nuwJagCu1uwWhgtw7"},
+  {label:"Truck 4",  url:"#YOUR_TRUCK_LINK_4"},
+  {label:"Truck 5",  url:"#YOUR_TRUCK_LINK_5"},
+  {label:"Truck 6",  url:"#YOUR_TRUCK_LINK_6"},
+  {label:"Truck 7",  url:"#YOUR_TRUCK_LINK_7"},
+  {label:"Truck 8",  url:"#YOUR_TRUCK_LINK_8"},
+  {label:"Truck 9",  url:"#YOUR_TRUCK_LINK_9"},
+  {label:"Truck 10", url:"#YOUR_TRUCK_LINK_10"}
+];
+/* ========================================================= */
+
+/* ===== USER NAME — localStorage + cookie fallback ===== */
+var NAME_KEY="reben_user_name";
+function readCookie(k){
+  try{var m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):""}catch(e){return ""}
+}
+function writeCookie(k,v){
+  try{var d=new Date();d.setTime(d.getTime()+1000*60*60*24*365);document.cookie=k+"="+encodeURIComponent(v)+"; expires="+d.toUTCString()+"; path=/; SameSite=Lax"}catch(e){}
+}
+function getUserName(){
+  var n="";
+  try{n=localStorage.getItem(NAME_KEY)||""}catch(e){}
+  if(!n)n=readCookie(NAME_KEY);
+  return n||"";
+}
+function setUserName(n){
+  try{localStorage.setItem(NAME_KEY,n)}catch(e){}
+  writeCookie(NAME_KEY,n);
+}
+function firstName(){
+  var n=getUserName();
+  return n?n.split(" ")[0]:"";
+}
+function greetWord(h){
+  if(h<12)return "Good morning";
+  if(h<17)return "Good afternoon";
+  return "Good evening";
+}
+function greetText(){
+  var name=getUserName();
+  var h=new Date().getHours();
+  return name ? (greetWord(h)+", "+name) : greetWord(h);
+}
+function paintGreet(){
+  var g=document.getElementById("greet");
+  if(g)g.textContent=greetText();
+}
+function paintWeatherName(){
+  var el=document.getElementById("wName");
+  if(!el)return;
+  var n=firstName();
+  el.textContent=n?("Hlo "+n):"";
+  el.style.display=n?"":"none";
+}
+
+/* ===== NAME MODAL ===== */
+var nameModal=document.getElementById("nameModal");
+var nameInput=document.getElementById("nameInput");
+var nameBtn=document.getElementById("nameBtn");
+function askName(){
+  nameModal.classList.add("on");
+  setTimeout(function(){try{nameInput.focus()}catch(e){}},120);
+}
+function submitName(){
+  var v=(nameInput.value||"").trim().replace(/\s+/g," ");
+  if(v.length<2){
+    nameInput.classList.add("err");
+    setTimeout(function(){nameInput.classList.remove("err")},500);
+    return;
+  }
+  setUserName(v);
+  paintGreet();
+  paintWeatherName();
+  nameModal.classList.remove("on");
+  buzz(30);
+}
+nameBtn.onclick=submitName;
+nameInput.addEventListener("keydown",function(e){if(e.key==="Enter")submitName()});
+nameInput.addEventListener("input",function(){nameInput.classList.remove("err")});
+function ensureName(cb){
+  if(getUserName()){cb&&cb();return}
+  askName();
+  var iv=setInterval(function(){if(getUserName()){clearInterval(iv);cb&&cb()}},200);
+}
+
+/* ===== CLOCK ===== */
+function tick(){
+  var d=new Date();
+  var g=document.getElementById("greet");
+  if(g)g.textContent=greetText();
+  document.getElementById("sec").style.width=(d.getSeconds()/59*100)+"%";
+  var t=d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).split(" ");
+  document.getElementById("time").innerHTML=t[0]+"<small>"+t[1]+"</small>";
+  document.getElementById("date").textContent=d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+}
+tick();setInterval(tick,1000);
+if(!getUserName()){setTimeout(askName,400)}
+paintWeatherName();
+
+/* =========================================================
+   WEATHER — "Hlo Name 📍 Location 32°C ☀️"
+   ========================================================= */
+var WMO={
+  0:"☀️",1:"🌤️",2:"⛅",3:"☁️",
+  45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌦️",
+  56:"🌧️",57:"🌧️",61:"🌧️",63:"🌧️",65:"🌧️",
+  66:"🌧️",67:"🌧️",71:"🌨️",73:"🌨️",75:"❄️",77:"🌨️",
+  80:"🌦️",81:"🌧️",82:"⛈️",85:"🌨️",86:"❄️",
+  95:"⛈️",96:"⛈️",99:"⛈️"
+};
+function wIcon(code){return WMO[code]||"🌡️"}
+
+function applyWeather(lat,lon,city){
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+"&current=temperature_2m,weather_code&timezone=auto";
+  fetch(url).then(function(r){return r.json()}).then(function(j){
+    if(!j||!j.current)return;
+    var t=Math.round(j.current.temperature_2m);
+    var code=j.current.weather_code;
+    var box=document.getElementById("weather");
+    document.getElementById("wIcon").textContent=wIcon(code);
+    document.getElementById("wTemp").textContent=t+"°C";
+    document.getElementById("wCity").textContent=(city&&city.trim())?city:"Unknown";
+    paintWeatherName();
+    box.classList.add("on");
+  }).catch(function(){});
+}
+function locByIpwho(){
+  return fetch("https://ipwho.is/").then(function(r){return r.json()}).then(function(j){
+    if(j&&j.success!==false&&j.latitude&&j.longitude){
+      var city=j.city||j.region||j.country||"";
+      return {lat:j.latitude,lon:j.longitude,city:city};
+    }
+    throw new Error("ipwho failed");
+  });
+}
+function locByIpapi(){
+  return fetch("https://ipapi.co/json/").then(function(r){return r.json()}).then(function(j){
+    if(j&&j.latitude&&j.longitude){
+      var city=j.city||j.region||j.country_name||"";
+      return {lat:j.latitude,lon:j.longitude,city:city};
+    }
+    throw new Error("ipapi failed");
+  });
+}
+function locByGps(){
+  return new Promise(function(res,rej){
+    if(!navigator.geolocation)return rej();
+    navigator.geolocation.getCurrentPosition(
+      function(p){res({lat:p.coords.latitude,lon:p.coords.longitude,city:""})},
+      function(){rej()},
+      {timeout:8000,maximumAge:600000}
+    );
+  });
+}
+function loadWeather(){
+  locByIpwho()
+    .catch(locByIpapi)
+    .catch(locByGps)
+    .then(function(loc){if(loc)applyWeather(loc.lat,loc.lon,loc.city)})
+    .catch(function(){});
+}
+loadWeather();
+setInterval(loadWeather,15*60*1000);
+
+/* ===== notifications ===== */
+var sl=document.getElementById("slides"),dt=document.getElementById("dots"),cur=0,timer;
+document.getElementById("cnt").textContent=NOTIFICATIONS.length;
+NOTIFICATIONS.forEach(function(n,i){
+  var s=document.createElement("div");s.className="slide"+(i?"":" on");
+  s.innerHTML='<span class="tag '+n.type+'">'+n.tag+'</span><div><p>'+n.text+'</p><em>'+n.when+'</em></div>';
+  sl.appendChild(s);
+  var b=document.createElement("b");if(!i)b.className="on";b.onclick=function(){go(i);start()};dt.appendChild(b);
+});
+function go(i){cur=i;[].forEach.call(sl.children,function(e,k){e.classList.toggle("on",k===i)});[].forEach.call(dt.children,function(e,k){e.classList.toggle("on",k===i)})}
+function start(){clearInterval(timer);if(NOTIFICATIONS.length>1)timer=setInterval(function(){go((cur+1)%NOTIFICATIONS.length)},5000)}
+start();
+
+/* ===== link list — opens in NEW TAB ===== */
+function fill(id,arr){
+  var g=document.getElementById(id);
+  arr.forEach(function(x,i){
+    var a=document.createElement("a");
+    a.href=x.url;
+    a.target="_blank";              /* ← always open in new tab */
+    a.rel="noopener noreferrer";
+    a.style.setProperty("--i",i);
+    a.innerHTML="<span>"+(i+1)+"</span>"+x.label;
+    a.addEventListener("click",function(e){
+      if(!getUserName()){
+        e.preventDefault();
+        ensureName(function(){
+          if(x.url&&x.url!=="#"){window.open(x.url,"_blank","noopener")}
+        });
+      }
+      /* if name is set, default target="_blank" opens it */
+    });
+    g.appendChild(a);
+  });
+}
+fill("g-station",STATION);fill("g-truck",TRUCK);
+
+/* ===== panel show/hide ===== */
+var panels=document.querySelectorAll(".panel");
+function show(k,pop){panels.forEach(function(p){p.classList.toggle("on",p.dataset.p===k)});document.body.classList.toggle("list",!!k);if(k&&!pop){try{history.pushState({v:k},"")}catch(e){}}}
+document.querySelectorAll(".tab").forEach(function(t){
+  t.onclick=function(){
+    if(!getUserName()){askName();return}
+    show(t.dataset.k);
+  }
+});
+document.querySelectorAll(".back").forEach(function(b){b.onclick=closeList});
+function closeList(){if(history.state&&history.state.v){try{history.back();return}catch(e){}}show(null,1)}
+window.addEventListener("popstate",function(){show(history.state&&history.state.v||null,1)});
+var sx=0,sy=0;
+document.addEventListener("touchstart",function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+document.addEventListener("touchend",function(e){var t=e.changedTouches[0],dx=t.clientX-sx,dy=Math.abs(t.clientY-sy);if(document.body.classList.contains("list")&&sx<50&&dx>80&&dy<60)closeList()},{passive:true});
+
+/* ===== install app ===== */
+var ip=null,inst=document.getElementById("inst"),ib=document.getElementById("instbtn"),it=document.getElementById("insttxt");
+var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
+if(!standalone){
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();ip=e;inst.classList.add("on")});
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)){it.textContent="Install: tap Share, then Add to Home Screen";ib.style.display="none";inst.classList.add("on")}
+}
+ib.onclick=function(){if(ip){ip.prompt();ip=null;inst.classList.remove("on")}};
+document.getElementById("instx").onclick=function(){inst.classList.remove("on")};
+
+/* ===== app icon + manifest ===== */
+try {
+  var iconHref = new URL("logo.png", location.href).href;
+  var l1 = document.createElement("link");
+  l1.rel = "apple-touch-icon";l1.href = iconHref;
+  document.head.appendChild(l1);
+  var man = {
+    name:"REBEN Portal", short_name:"REBEN",
+    start_url:location.href, display:"standalone", orientation:"portrait",
+    background_color:"#ffffff", theme_color:"#da1f26",
+    icons:[
+      {src:iconHref,sizes:"192x192",type:"image/png",purpose:"any"},
+      {src:iconHref,sizes:"512x512",type:"image/png",purpose:"any"},
+      {src:iconHref,sizes:"512x512",type:"image/png",purpose:"maskable"}
+    ]
+  };
+  var l2 = document.createElement("link");
+  l2.rel="manifest";
+  l2.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}));
+  document.head.appendChild(l2);
+} catch(e){}
+
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+document.addEventListener("click",function(e){
+  var t=e.target.closest(".tab,.back,.grid a,.dots b,#instbtn,#nameBtn");
+  if(t)buzz(t.classList.contains("tab")?25:15);
+});
+document.addEventListener("pointerdown",function(e){
+  var t=e.target.closest(".tab,.back,.grid a,.mbox button");if(!t)return;
+  var r=t.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,s=document.createElement("i");
+  s.className="rip";
+  s.style.cssText="width:"+d+"px;height:"+d+"px;left:"+(e.clientX-r.left-d/2)+"px;top:"+(e.clientY-r.top-d/2)+"px";
+  t.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},750);
+},{passive:true});
+</script>
+</body>
+</html>

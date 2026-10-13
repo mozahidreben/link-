@@ -3,14 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- 🔥 Prevent caching so updates always show -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <title>REBEN Portal</title>
 <meta name="theme-color" content="#da1f26">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="REBEN">
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="logo.png?v=1">
+<link rel="apple-touch-icon" href="logo.png?v=1">
 <style>
 :root{--red:#da1f26;--red2:#a8141a;--gray:#4c4b4d;--mut:#8a898b;--bg:#ffffff;--soft:#f5f5f6;--line:rgba(76,75,77,.14)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -324,6 +330,55 @@ body.list #home{display:none}
 </style>
 </head>
 <body>
+
+<!-- =========================================================
+     FRESH-LOAD GUARD
+     - Wipes service workers + cache storage on every load
+     - Keeps ONLY the user name in localStorage
+     ========================================================= -->
+<script>
+(function(){
+  var KEEP = "reben_user_name";     // the only key we preserve
+
+  // 1) Read the name before wiping
+  var savedName = "";
+  try { savedName = localStorage.getItem(KEEP) || ""; } catch(e){}
+
+  // 2) Wipe ALL localStorage, restore name
+  try {
+    localStorage.clear();
+    if (savedName) localStorage.setItem(KEEP, savedName);
+  } catch(e){}
+
+  // 3) Unregister any old service workers
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(rs){
+      rs.forEach(function(r){ try { r.unregister(); } catch(e){} });
+    }).catch(function(){});
+  }
+
+  // 4) Delete Cache Storage entries
+  if (window.caches && caches.keys) {
+    caches.keys().then(function(keys){
+      keys.forEach(function(k){ try { caches.delete(k); } catch(e){} });
+    }).catch(function(){});
+  }
+
+  // 5) If launched as an installed PWA, do ONE hard reload
+  //    once per session so the cached HTML is replaced.
+  var standalone =
+    (window.matchMedia && matchMedia("(display-mode: standalone)").matches) ||
+    navigator.standalone === true;
+
+  if (standalone && !sessionStorage.getItem("reben_reloaded")) {
+    sessionStorage.setItem("reben_reloaded", "1");
+    var u = new URL(location.href);
+    u.searchParams.set("_", Date.now());
+    location.replace(u.toString());
+  }
+})();
+</script>
+
 <div class="orb o1"></div><div class="orb o2"></div>
 
 <!-- ===== NAME MODAL ===== -->
@@ -409,7 +464,6 @@ body.list #home{display:none}
 <script>
 /* =========================================================
    EDIT HERE: put your real links
-   Replace each "#YOUR_..." with the real https:// link
    ========================================================= */
 var NOTIFICATIONS=[
  {tag:"Important",type:"",text:"Welcome to the REBEN portal. Your notifications will appear here.",when:"Today"},
@@ -546,8 +600,8 @@ var WMO={
 function wIcon(code){return WMO[code]||"🌡️"}
 
 function applyWeather(lat,lon,city){
-  var url="https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+"&current=temperature_2m,weather_code&timezone=auto";
-  fetch(url).then(function(r){return r.json()}).then(function(j){
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+"&current=temperature_2m,weather_code&timezone=auto&_="+Date.now();
+  fetch(url,{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
     if(!j||!j.current)return;
     var t=Math.round(j.current.temperature_2m);
     var code=j.current.weather_code;
@@ -560,7 +614,7 @@ function applyWeather(lat,lon,city){
   }).catch(function(){});
 }
 function locByIpwho(){
-  return fetch("https://ipwho.is/").then(function(r){return r.json()}).then(function(j){
+  return fetch("https://ipwho.is/",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
     if(j&&j.success!==false&&j.latitude&&j.longitude){
       var city=j.city||j.region||j.country||"";
       return {lat:j.latitude,lon:j.longitude,city:city};
@@ -569,7 +623,7 @@ function locByIpwho(){
   });
 }
 function locByIpapi(){
-  return fetch("https://ipapi.co/json/").then(function(r){return r.json()}).then(function(j){
+  return fetch("https://ipapi.co/json/",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
     if(j&&j.latitude&&j.longitude){
       var city=j.city||j.region||j.country_name||"";
       return {lat:j.latitude,lon:j.longitude,city:city};
@@ -616,7 +670,7 @@ function fill(id,arr){
   arr.forEach(function(x,i){
     var a=document.createElement("a");
     a.href=x.url;
-    a.target="_blank";              /* ← always open in new tab */
+    a.target="_blank";
     a.rel="noopener noreferrer";
     a.style.setProperty("--i",i);
     a.innerHTML="<span>"+(i+1)+"</span>"+x.label;
@@ -627,7 +681,6 @@ function fill(id,arr){
           if(x.url&&x.url!=="#"){window.open(x.url,"_blank","noopener")}
         });
       }
-      /* if name is set, default target="_blank" opens it */
     });
     g.appendChild(a);
   });
@@ -662,7 +715,7 @@ document.getElementById("instx").onclick=function(){inst.classList.remove("on")}
 
 /* ===== app icon + manifest ===== */
 try {
-  var iconHref = new URL("logo.png", location.href).href;
+  var iconHref = new URL("logo.png?v=" + Date.now(), location.href).href;
   var l1 = document.createElement("link");
   l1.rel = "apple-touch-icon";l1.href = iconHref;
   document.head.appendChild(l1);

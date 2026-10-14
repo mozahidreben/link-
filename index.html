@@ -333,43 +333,29 @@ body.list #home{display:none}
 
 <!-- =========================================================
      FRESH-LOAD GUARD
-     - Wipes service workers + cache storage on every load
-     - Keeps ONLY the user name in localStorage
      ========================================================= -->
 <script>
 (function(){
-  var KEEP = "reben_user_name";     // the only key we preserve
-
-  // 1) Read the name before wiping
+  var KEEP = "reben_user_name";
   var savedName = "";
   try { savedName = localStorage.getItem(KEEP) || ""; } catch(e){}
-
-  // 2) Wipe ALL localStorage, restore name
   try {
     localStorage.clear();
     if (savedName) localStorage.setItem(KEEP, savedName);
   } catch(e){}
-
-  // 3) Unregister any old service workers
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(rs){
       rs.forEach(function(r){ try { r.unregister(); } catch(e){} });
     }).catch(function(){});
   }
-
-  // 4) Delete Cache Storage entries
   if (window.caches && caches.keys) {
     caches.keys().then(function(keys){
       keys.forEach(function(k){ try { caches.delete(k); } catch(e){} });
     }).catch(function(){});
   }
-
-  // 5) If launched as an installed PWA, do ONE hard reload
-  //    once per session so the cached HTML is replaced.
   var standalone =
     (window.matchMedia && matchMedia("(display-mode: standalone)").matches) ||
     navigator.standalone === true;
-
   if (standalone && !sessionStorage.getItem("reben_reloaded")) {
     sessionStorage.setItem("reben_reloaded", "1");
     var u = new URL(location.href);
@@ -414,7 +400,7 @@ body.list #home{display:none}
       <div class="nt">
         <div class="bell">
           <svg viewBox="0 0 24 24" fill="none" stroke="#da1f26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
-          <i id="cnt">3</i>
+          <i id="cnt">0</i>
         </div>
         Notifications
       </div>
@@ -431,7 +417,6 @@ body.list #home{display:none}
 
   <div class="hint">Choose below to see the links: Designed By- Mozahid</div>
 
-  <!-- weather chip: Hlo Name 📍 Location 32°C ☀️ -->
   <div class="weather" id="weather">
     <span class="wname" id="wName"></span>
     <span class="wpin">📍</span>
@@ -463,14 +448,8 @@ body.list #home{display:none}
 </div>
 <script>
 /* =========================================================
-   EDIT HERE: put your real links
+   LINKS — STATION / TRUCK
    ========================================================= */
-var NOTIFICATIONS=[
- {tag:"Important",type:"",text:"Welcome to the REBEN portal. Your notifications will appear here.",when:"Today"},
- {tag:"Info",type:"i",text:"Daily shift readings must be submitted before 11:00 PM.",when:"Reminder"},
- {tag:"Update",type:"i",text:"New truck dispatch links have been added.",when:"This week"}
-];
-
 var STATION=[
   {label:"Station Stock",  url:"https://forms.gle/wGanzYmbLnAcDYSN6"},
   {label:"Daily Station Stock",  url:"https://forms.gle/2wnGA4d7oYULkVu66"},
@@ -496,9 +475,8 @@ var TRUCK=[
   {label:"Truck 9",  url:"#YOUR_TRUCK_LINK_9"},
   {label:"Truck 10", url:"#YOUR_TRUCK_LINK_10"}
 ];
-/* ========================================================= */
 
-/* ===== USER NAME — localStorage + cookie fallback ===== */
+/* ===== USER NAME ===== */
 var NAME_KEY="reben_user_name";
 function readCookie(k){
   try{var m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):""}catch(e){return ""}
@@ -587,7 +565,7 @@ if(!getUserName()){setTimeout(askName,400)}
 paintWeatherName();
 
 /* =========================================================
-   WEATHER — "Hlo Name 📍 Location 32°C ☀️"
+   WEATHER
    ========================================================= */
 var WMO={
   0:"☀️",1:"🌤️",2:"⛅",3:"☁️",
@@ -651,18 +629,71 @@ function loadWeather(){
 loadWeather();
 setInterval(loadWeather,15*60*1000);
 
-/* ===== notifications ===== */
+/* =========================================================
+   NOTIFICATIONS — auto-loaded from notices.json
+   ========================================================= */
+var NOTIFICATIONS=[];
 var sl=document.getElementById("slides"),dt=document.getElementById("dots"),cur=0,timer;
-document.getElementById("cnt").textContent=NOTIFICATIONS.length;
-NOTIFICATIONS.forEach(function(n,i){
-  var s=document.createElement("div");s.className="slide"+(i?"":" on");
-  s.innerHTML='<span class="tag '+n.type+'">'+n.tag+'</span><div><p>'+n.text+'</p><em>'+n.when+'</em></div>';
-  sl.appendChild(s);
-  var b=document.createElement("b");if(!i)b.className="on";b.onclick=function(){go(i);start()};dt.appendChild(b);
+
+var FALLBACK=[
+  {tag:"Info",type:"i",text:"Loading notices…",when:""}
+];
+
+function buildSlides(list){
+  sl.innerHTML=""; dt.innerHTML=""; cur=0;
+  document.getElementById("cnt").textContent=list.length;
+  list.forEach(function(n,i){
+    var s=document.createElement("div");
+    s.className="slide"+(i?"":" on");
+    s.innerHTML='<span class="tag '+(n.type||"")+'">'+(n.tag||"")+'</span>'+
+                '<div><p>'+(n.text||"")+'</p><em>'+(n.when||"")+'</em></div>';
+    sl.appendChild(s);
+    var b=document.createElement("b");
+    if(!i) b.className="on";
+    b.onclick=function(){go(i);start()};
+    dt.appendChild(b);
+  });
+}
+function go(i){
+  cur=i;
+  [].forEach.call(sl.children,function(e,k){e.classList.toggle("on",k===i)});
+  [].forEach.call(dt.children,function(e,k){e.classList.toggle("on",k===i)});
+}
+function start(){
+  clearInterval(timer);
+  var n=sl.children.length;
+  if(n>1) timer=setInterval(function(){go((cur+1)%n)},5000);
+}
+
+function loadNotices(){
+  fetch("notices.json?_="+Date.now(),{cache:"no-store"})
+    .then(function(r){
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return r.json();
+    })
+    .then(function(list){
+      if(Array.isArray(list) && list.length){
+        NOTIFICATIONS = list;
+        buildSlides(list);
+      } else {
+        buildSlides(FALLBACK);
+      }
+      start();
+    })
+    .catch(function(err){
+      console.warn("notices.json load failed:",err);
+      buildSlides(FALLBACK);
+      start();
+    });
+}
+
+loadNotices();
+// auto-refresh every 5 minutes while app stays open
+setInterval(loadNotices, 5*60*1000);
+// refresh when user returns to the app
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden) loadNotices();
 });
-function go(i){cur=i;[].forEach.call(sl.children,function(e,k){e.classList.toggle("on",k===i)});[].forEach.call(dt.children,function(e,k){e.classList.toggle("on",k===i)})}
-function start(){clearInterval(timer);if(NOTIFICATIONS.length>1)timer=setInterval(function(){go((cur+1)%NOTIFICATIONS.length)},5000)}
-start();
 
 /* ===== link list — opens in NEW TAB ===== */
 function fill(id,arr){
